@@ -2,17 +2,14 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 
 # Configurações gerais
 st.set_page_config(page_title="Análise Fisiológica - Lesão Medular", layout="wide")
-
 
 # Função para carregar dados
 @st.cache_data
 def load_data(file_path):
     return pd.read_csv(file_path)
-
 
 # Título principal
 st.title("Dashboard de Análise de Parâmetros Fisiológicos em Modelo Animal")
@@ -55,63 +52,141 @@ with tab1:
     """)
 
 with tab2:
-    st.header("Distribuição das Variáveis")
-    st.info("Esta seção mostra a distribuição estatística de cada variável do dataset")
-
+    st.header("Análise Série Temporal das Variáveis")
+    st.info("Selecione uma variável ou grupo abaixo para visualizar seus valores ao longo das observações")
+    
     try:
         df = load_data("vitals_mais_rs.csv")
+        # Resetar o índice para começar em 1
+        df.index = df.index + 1
     except:
         st.error("Arquivo não encontrado! Por favor, verifique o caminho do arquivo.")
         st.stop()
 
-    columns = [
+    # Lista de variáveis para seleção
+    variables = [
         'systolic_mmhg', 'diastolic_mmhg', 'map_mmhg',
-        'respiration_bpm', 'r1_pi_value', 'r2_pi_value',
-        'r3_pi_value', 'r3_pr_bpm_value'
+        'respiration_bpm', 'r3_pr_bpm_value', 'Índices de Perfusão'
     ]
-
-    for col in columns:
-        with st.expander(f"Análise da variável: **{col}**", expanded=False):
-            c1, c2 = st.columns([4, 2])
-
-            with c1:
-                st.subheader(f"Distribuição de {col}")
-
-                # Criar figura
-                fig, ax = plt.subplots(figsize=(10, 4))
-
-                # Plotar histograma e KDE
-                sns.histplot(df[col], kde=True, ax=ax, bins=30)
-                ax.set_title(f"Distribuição de {col}")
-                ax.set_xlabel("Valores")
-                ax.set_ylabel("Frequência")
-
-                # Adicionar linhas de média e mediana
-                mean_val = df[col].mean()
-                median_val = df[col].median()
-                ax.axvline(mean_val, color='r', linestyle='--', label=f'Média: {mean_val:.2f}')
-                ax.axvline(median_val, color='g', linestyle='-', label=f'Mediana: {median_val:.2f}')
-
-                plt.legend()
-                st.pyplot(fig)
-
-            with c2:
-                st.subheader("Estatísticas Descritivas")
-
-                # Estatísticas básicas
-                stats = df[col].describe()
-                st.write(stats)
-
-                # Informações adicionais
-                st.metric("Valores Faltantes", df[col].isnull().sum())
-                st.metric("Valores Únicos", df[col].nunique())
-
-                # Boxplot compacto
-                st.subheader("Detecção de Outliers")
-                fig2, ax2 = plt.subplots(figsize=(4, 2))
-                sns.boxplot(x=df[col], ax=ax2)
-                plt.xticks(rotation=45)
-                st.pyplot(fig2)
+    
+    # Widget de seleção
+    selected_var = st.selectbox(
+        "Selecione a variável/grupo para análise:",
+        options=variables,
+        index=0,
+        key="var_selector"
+    )
+    
+    st.subheader(f"Análise: **{selected_var}**")
+    
+    # Layout em colunas
+    col1, col2 = st.columns([3, 2])
+    
+    with col1:
+        # Gráfico principal
+        fig, ax = plt.subplots(figsize=(12, 6))
+        
+        if selected_var == 'Índices de Perfusão':
+            # Plotar todas as séries de perfusão juntas
+            perfusion_cols = ['r1_pi_value', 'r2_pi_value', 'r3_pi_value']
+            colors = ['#1f77b4', '#ff7f0e', '#2ca02c']  # Azul, Laranja, Verde
+            
+            for col, color in zip(perfusion_cols, colors):
+                sns.lineplot(
+                    x=df.index,
+                    y=df[col],
+                    ax=ax,
+                    marker='o',
+                    markersize=4,
+                    linewidth=1,
+                    label=col.replace('_pi_value', '').upper(),
+                    color=color
+                )
+            
+            # Configurações do gráfico
+            ax.set_title("Índices de Perfusão por Observação")
+            ax.set_ylabel("Valor do Índice")
+            
+        else:
+            # Plotar variável individual
+            sns.lineplot(
+                x=df.index,
+                y=df[selected_var],
+                ax=ax,
+                marker='o',
+                markersize=4,
+                linewidth=1,
+                color='steelblue',
+                label=selected_var
+            )
+            
+            # Linha de referência para variáveis individuais
+            mean_val = df[selected_var].mean()
+            ax.axhline(mean_val, color='r', linestyle='--', label=f'Média: {mean_val:.2f}')
+            
+            # Configurações do gráfico
+            ax.set_title(f"Valores de {selected_var} por Observação")
+            ax.set_ylabel(selected_var)
+        
+        # Configurações comuns a ambos os casos
+        ax.set_xlabel("Número da Observação (Índice)")
+        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.legend()
+        plt.tight_layout()
+        st.pyplot(fig)
+    
+    with col2:
+        # Estatísticas descritivas
+        st.subheader("Estatísticas Descritivas")
+        
+        if selected_var == 'Índices de Perfusão':
+            # Mostrar estatísticas para todos os índices
+            perfusion_stats = df[['r1_pi_value', 'r2_pi_value', 'r3_pi_value']].describe().T
+            st.dataframe(perfusion_stats.style.format("{:.2f}"), height=250)
+        else:
+            # Estatísticas para variável individual
+            stats = df[selected_var].describe().to_frame().T
+            st.dataframe(stats.style.format("{:.2f}"), height=250)
+        
+        # Métricas rápidas
+        st.subheader("Informações Adicionais")
+        
+        if selected_var == 'Índices de Perfusão':
+            st.metric(label="Valores Faltantes Totais", 
+                      value=df[['r1_pi_value', 'r2_pi_value', 'r3_pi_value']].isnull().sum().sum())
+            
+            # Criar colunas para métricas individuais
+            cols = st.columns(3)
+            for i, col in enumerate(['r1_pi_value', 'r2_pi_value', 'r3_pi_value']):
+                with cols[i]:
+                    st.metric(label=f"Média {col.replace('_pi_value', '')}", 
+                             value=f"{df[col].mean():.2f}")
+        else:
+            st.metric(label="Valores Faltantes", value=df[selected_var].isnull().sum())
+            st.metric(label="Valores Únicos", value=df[selected_var].nunique())
+            st.metric(label="Média", value=f"{df[selected_var].mean():.2f}")
+            st.metric(label="Mediana", value=f"{df[selected_var].median():.2f}")
+        
+        # Gráfico complementar
+        st.subheader("Distribuição" if selected_var != 'Índices de Perfusão' else "Distribuição Comparada")
+        fig2, ax2 = plt.subplots(figsize=(5, 3))
+        
+        if selected_var == 'Índices de Perfusão':
+            # Boxplot comparado para os índices
+            perfusion_df = df[['r1_pi_value', 'r2_pi_value', 'r3_pi_value']].melt(var_name='Índice', value_name='Valor')
+            sns.boxplot(data=perfusion_df, x='Índice', y='Valor', ax=ax2, palette=['#1f77b4', '#ff7f0e', '#2ca02c'])
+            ax2.set_title("Distribuição dos Índices de Perfusão")
+            ax2.set_ylabel("Valor")
+            ax2.set_xlabel("")
+        else:
+            # Histograma para variável individual
+            sns.histplot(df[selected_var], kde=True, bins=30, ax=ax2, color='seagreen')
+            ax2.set_title(f"Distribuição de {selected_var}")
+            ax2.set_xlabel(selected_var)
+            ax2.set_ylabel("Frequência")
+        
+        plt.xticks(rotation=45)
+        st.pyplot(fig2)
 
 # Rodapé
 st.sidebar.markdown("---")
