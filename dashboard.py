@@ -28,10 +28,10 @@ with tab1:
     que posteriormente foram consolidados em um único conjunto de dados.
 
     **Parâmetros monitorados:**
-    - Pressão arterial (sistólica, diastólica e média)
-    - Frequência respiratória
-    - Índices de perfusão (R1, R2, R3)
-    - Pulsação cardíaca (R3)
+    - Pressão arterial (sistólica, diastólica e média) = força exercida pelo sangue contra as paredes das artérias
+    - Frequência respiratória = número de respirações por minuto
+    - Índices de perfusão (R1, R2, R3) = medida que reflete a qualidade da circulação sanguínea, especialmente em regiões periféricas do corpo
+    - Pulsação cardíaca (R3) = número de batimentos do coração por minuto
     """)
 
     st.header("Objetivo da Análise")
