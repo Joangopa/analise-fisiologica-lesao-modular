@@ -14,8 +14,44 @@ def load_data(file_path):
 # Título principal
 st.title("Dashboard de Análise de Parâmetros Fisiológicos em Modelo Animal")
 
+
+
+try:
+    dados1 = pd.read_csv('vitals_mais_rs.csv', sep=',', encoding='utf-8')
+    dados1 = dados1.drop(columns=['r1_events', 'r2_events', 'r3_events'])
+    dados1 = dados1.rename(columns={'r3_pr_bpm_value':'pr_bpm'})
+
+    dados2 = pd.read_csv('vitals_mais_rs_2.csv', sep=',', encoding='utf-8')
+    dados2 = dados2.drop(columns=['r1_events', 'r2_events', 'r3_events'])
+    dados2 = dados2.rename(columns={'pr_bpm_value':'pr_bpm'})
+
+    dados = pd.concat([dados1, dados2], ignore_index=True)
+
+
+    dados = dados.rename(columns={
+        'pr_bpm': 'fc_bpm',
+        'r1_pi_value': 'r1_ip',
+        'r2_pi_value': 'r2_ip',
+        'r3_pi_value': 'r3_ip',
+        'systolic_mmhg': 'sistolica_mmhg'
+    })
+
+
+    dados = dados.loc[dados['sistolica_mmhg'] < 201]
+
+
+
+
+    # Resetar o índice para começar em 1
+    dados.index = dados.index + 1
+except:
+    st.error("Arquivo não encontrado! Por favor, verifique o caminho do arquivo.")
+    st.stop()
+
+
+
 # Abas
-tab1, tab2 = st.tabs(["Contexto e Objetivos", "Apresentação dos Dados"])
+tab1, tab2, tab3 = st.tabs(["Contexto e Objetivos", "Apresentação dos Dados", "Classificador de Pressão Arterial Sistólica"])
 
 with tab1:
     st.header("Contexto do Estudo")
@@ -29,7 +65,6 @@ with tab1:
 
     **Parâmetros monitorados:**
     - Pressão arterial (sistólica, diastólica e média) = força exercida pelo sangue contra as paredes das artérias
-    - Frequência respiratória = número de respirações por minuto
     - Índices de perfusão (R1, R2, R3) = medida que reflete a qualidade da circulação sanguínea, especialmente em regiões periféricas do corpo
     - Pulsação cardíaca (R3) = número de batimentos do coração por minuto
     """)
@@ -54,30 +89,20 @@ with tab1:
 with tab2:
     st.header("Análise Série Temporal das Variáveis")
     st.info("Selecione uma variável ou grupo abaixo para visualizar seus valores ao longo das observações")
-    
-    try:
-        df = load_data("vitals_mais_rs.csv")
-        # Resetar o índice para começar em 1
-        df.index = df.index + 1
-    except:
-        st.error("Arquivo não encontrado! Por favor, verifique o caminho do arquivo.")
-        st.stop()
 
     # Dicionário de mapeamento de variáveis para nomes em português
     var_names = {
-        'respiration_bpm': 'Frequência Respiratória (rpm)',
-        'r3_pr_bpm_value': 'Frequência Cardíaca (bpm)',
-        'r1_pi_value': 'Índice de Perfusão R1',
-        'r2_pi_value': 'Índice de Perfusão R2',
-        'r3_pi_value': 'Índice de Perfusão R3',
-        'systolic_mmhg': 'Pressão Sistólica (mmHg)',
+        'fc_bpm': 'Frequência Cardíaca (bpm)',
+        'r1_ip': 'Índice de Perfusão R1',
+        'r2_ip': 'Índice de Perfusão R2',
+        'r3_ip': 'Índice de Perfusão R3',
+        'sistolica_mmhg': 'Pressão Sistólica (mmHg)',
         'diastolic_mmhg': 'Pressão Diastólica (mmHg)',
         'map_mmhg': 'Pressão Arterial Média (mmHg)'
     }
 
     # Lista de variáveis para seleção (com nomes em português)
     variables = [
-        'Frequência Respiratória (rpm)',
         'Frequência Cardíaca (bpm)',
         'Índices de Perfusão', 
         'Pressões Arteriais'
@@ -96,14 +121,14 @@ with tab2:
         
     if selected_var == 'Índices de Perfusão':
         # Plotar todas as séries de perfusão juntas
-        perfusion_cols = ['r1_pi_value', 'r2_pi_value', 'r3_pi_value']
+        perfusion_cols = ['r1_ip', 'r2_ip', 'r3_ip']
         colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
         labels = [var_names[col] for col in perfusion_cols]
         
         for col, color, label in zip(perfusion_cols, colors, labels):
             sns.lineplot(
-                x=df.index,
-                y=df[col],
+                x=dados.index,
+                y=dados[col],
                 ax=ax,
                 marker='o',
                 markersize=4,
@@ -117,14 +142,14 @@ with tab2:
         
     elif selected_var == 'Pressões Arteriais':
         # Plotar todas as pressões juntas
-        pressure_cols = ['systolic_mmhg', 'diastolic_mmhg', 'map_mmhg']
+        pressure_cols = ['sistolica_mmhg', 'diastolic_mmhg', 'map_mmhg']
         colors = ['#d62728', '#1f77b4', '#9467bd']
         labels = [var_names[col] for col in pressure_cols]
         
         for col, color, label in zip(pressure_cols, colors, labels):
             sns.lineplot(
-                x=df.index,
-                y=df[col],
+                x=dados.index,
+                y=dados[col],
                 ax=ax,
                 marker='o',
                 markersize=4,
@@ -142,8 +167,8 @@ with tab2:
         
         # Plotar variável individual
         sns.lineplot(
-            x=df.index,
-            y=df[original_var],
+            x=dados.index,
+            y=dados[original_var],
             ax=ax,
             marker='o',
             markersize=4,
@@ -153,7 +178,7 @@ with tab2:
         )
         
         # Linha de referência
-        mean_val = df[original_var].mean()
+        mean_val = dados[original_var].mean()
         ax.axhline(mean_val, color='r', linestyle='--', label=f'Média: {mean_val:.2f}')
         
         ax.set_title(f"{selected_var} por Observação")
@@ -170,18 +195,18 @@ with tab2:
     fig2, ax2 = plt.subplots(figsize=(10, 4))
     
     if selected_var == 'Índices de Perfusão':
-        perfusion_df = df[['r1_pi_value', 'r2_pi_value', 'r3_pi_value']].melt(var_name='Índice', value_name='Valor')
-        perfusion_df['Índice'] = perfusion_df['Índice'].map(var_names)
-        sns.boxplot(data=perfusion_df, x='Índice', y='Valor', ax=ax2, palette=['#1f77b4', '#ff7f0e', '#2ca02c'])
+        perfusion_dados = dados[['r1_ip', 'r2_ip', 'r3_ip']].melt(var_name='Índice', value_name='Valor')
+        perfusion_dados['Índice'] = perfusion_dados['Índice'].map(var_names)
+        sns.boxplot(data=perfusion_dados, x='Índice', y='Valor', ax=ax2, palette=['#1f77b4', '#ff7f0e', '#2ca02c'])
         ax2.set_title("Distribuição dos Índices de Perfusão")
         ax2.set_ylabel("Valor")
         ax2.set_xlabel("")
         plt.xticks(rotation=45)
         
     elif selected_var == 'Pressões Arteriais':
-        pressure_df = df[['systolic_mmhg', 'diastolic_mmhg', 'map_mmhg']].melt(var_name='Pressão', value_name='Valor')
-        pressure_df['Pressão'] = pressure_df['Pressão'].map(var_names)
-        sns.boxplot(data=pressure_df, x='Pressão', y='Valor', ax=ax2, palette=['#d62728', '#1f77b4', '#9467bd'])
+        pressure_dados = dados[['sistolica_mmhg', 'diastolic_mmhg', 'map_mmhg']].melt(var_name='Pressão', value_name='Valor')
+        pressure_dados['Pressão'] = pressure_dados['Pressão'].map(var_names)
+        sns.boxplot(data=pressure_dados, x='Pressão', y='Valor', ax=ax2, palette=['#d62728', '#1f77b4', '#9467bd'])
         ax2.set_title("Distribuição das Pressões Arteriais")
         ax2.set_ylabel("mmHg")
         ax2.set_xlabel("")
@@ -189,7 +214,7 @@ with tab2:
         
     else:
         original_var = [k for k, v in var_names.items() if v == selected_var][0]
-        sns.histplot(df[original_var], kde=True, bins=30, ax=ax2, color='seagreen')
+        sns.histplot(dados[original_var], kde=True, bins=30, ax=ax2, color='seagreen')
         ax2.set_title(f"Distribuição de {selected_var}")
         ax2.set_xlabel(selected_var)
         ax2.set_ylabel("Frequência")
