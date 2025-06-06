@@ -404,21 +404,20 @@ with tab4:
     # Título e imagem introdutória
     # -----------------------
     st.title('🧠 Modelo Preditivo da Pressão Arterial Sistólica com XGBoost')
-    col1, col2 = st.columns(2)
+    col1, col2 = st.columns([1, 2])
 
     with col1:
         st.image('imagem_xgb.png', caption='Explicação do algoritmo XGBoost', use_container_width=True)
     
     with col2:
-        st.markdown(
-            """
-            **Como funciona o XGBoost?**  
-            O XGBoost é um algoritmo baseado em árvores de decisão que funciona por meio de **boosting**, 
-            uma técnica que combina modelos fracos sequencialmente para formar um modelo forte.  
-            A cada iteração, ele tenta corrigir os erros cometidos pelos modelos anteriores, 
-            tornando-se muito eficaz para tarefas preditivas com alto desempenho.
-            """
-        )
+    st.markdown("""
+        <p style='font-size:20px'>
+        <strong>Como funciona o XGBoost?</strong><br><br>
+        O XGBoost é um algoritmo baseado em árvores de decisão que funciona por meio de <em>boosting</em>,
+        uma técnica que combina modelos fracos de forma sequencial para criar um modelo robusto.<br><br>
+        Ele corrige os erros dos modelos anteriores a cada etapa, o que o torna altamente eficiente em tarefas preditivas.
+        </p>
+        """, unsafe_allow_html=True)
 
     # -----------------------
     # Carregamento do modelo
