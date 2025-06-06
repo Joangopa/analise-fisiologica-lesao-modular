@@ -466,9 +466,9 @@ with tab4:
 with tab5:
     st.header("Conclusões")
     st.markdown("""
-- O modelo indica que os índices de perfusão e de frequência cardíaca podem ser variáveis preditoras da pressão arterial sistólica;
-- É possível reduzir equipamentos de monitoramento dos parâmetros fisiológicos, consequentemente isso reduz os custos de manutenção, operação e armazenamento do equipamento;
-- Modelos apresentados podem ser usados para traçar um prognóstico em paciente com LM com base na previsão de parâmetros fisiológicos (FC e IP) que tenham influência no trauma medular.
+        - O modelo indica que os índices de perfusão e de frequência cardíaca podem ser variáveis preditoras da pressão arterial sistólica;
+        - É possível reduzir equipamentos de monitoramento dos parâmetros fisiológicos, consequentemente isso reduz os custos de manutenção, operação e armazenamento do equipamento;
+        - Modelos apresentados podem ser usados para traçar um prognóstico em paciente com LM com base na previsão de parâmetros fisiológicos (FC e IP) que tenham influência no trauma medular.
     """)
 
 
