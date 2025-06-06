@@ -73,7 +73,7 @@ tab1, tab2, tab3, tab4, tab5 = st.tabs([
 with tab1:
     st.header("Contexto do Estudo")
     
-    st.image("imagem_choque_neuro.png", caption="Representação do choque neurogênico", use_container_width=True)
+    st.image("imagem_choque_neuro.png", caption="Representação do choque neurogênico", width=1000)
 
     st.markdown("""
     **Fonte dos dados:**  
