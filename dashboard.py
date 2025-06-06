@@ -46,8 +46,12 @@ try:
 
     dados = dados.loc[dados['sistolica_mmhg'] < 201]
 
-
-
+    # Remover registros com índices de perfusão (r1_ip, r2_ip, r3_ip) maiores que 5
+    dados = dados.loc[
+        (dados['r1_ip'] <= 5) &
+        (dados['r2_ip'] <= 5) &
+        (dados['r3_ip'] <= 5)
+    ]
 
     # Resetar o índice para começar em 1
     dados.index = dados.index + 1
