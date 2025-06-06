@@ -332,12 +332,22 @@ with tab3:
 
 
     st.title('Classificador de Pressão Arterial Sistólica')
-
-
-
-    # 1. Exibir a imagem do agrupamento
-    st.header("Matriz de Agrupamento")
-    st.image("imagem_agrupamento.png", caption="Agrupamento de dados", use_container_width=True)
+    st.write(
+        "Sabemos que temos 3 possibilidades de pressão arterial sistólica (Hipotensão, Normal e Hipertensão). "
+        "E se tentarmos um agrupamento KMeans com 3 grupos?"
+    )
+    
+    # Subtítulo
+    st.subheader("Resultados do Agrupamento")
+    
+    # Colocar as duas imagens lado a lado
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.image("imagem_agrupamento.png", caption="Agrupamento de dados", use_container_width=True)
+    
+    with col2:
+        st.image("imagem_agrupamento__importancia.png", caption="Importância dos atributos", use_container_width=True)
 
     # 2. Introdução à árvore de decisão
     st.header("Introdução à Árvore de Decisão")
