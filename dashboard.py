@@ -62,7 +62,13 @@ except:
 
 
 # Abas
-tab1, tab2, tab3, tab4 = st.tabs(["Contexto e Objetivos", "Apresentação dos Dados", "Classificador de Pressão Arterial Sistólica", "Modelo Preditivo da Pressão Arterial Sistólica"])
+tab1, tab2, tab3, tab4, tab5 = st.tabs([
+    "Contexto e Objetivos",
+    "Apresentação dos Dados",
+    "Classificador de Pressão Arterial Sistólica",
+    "Modelo Preditivo da Pressão Arterial Sistólica",
+    "Conclusões" 
+])
 
 with tab1:
     st.header("Contexto do Estudo")
@@ -457,7 +463,13 @@ with tab4:
         except Exception as e:
             st.error(f'Erro ao fazer previsão: {e}')
 
-
+with tab5:
+    st.header("Conclusões")
+    st.markdown("""
+- O modelo indica que os índices de perfusão e de frequência cardíaca podem ser variáveis preditoras da pressão arterial sistólica;
+- É possível reduzir equipamentos de monitoramento dos parâmetros fisiológicos, consequentemente isso reduz os custos de manutenção, operação e armazenamento do equipamento;
+- Modelos apresentados podem ser usados para traçar um prognóstico em paciente com LM com base na previsão de parâmetros fisiológicos (FC e IP) que tenham influência no trauma medular.
+    """)
 
 
 
