@@ -410,14 +410,14 @@ with tab4:
         st.image('imagem_xgb.png', caption='Explicação do algoritmo XGBoost', use_container_width=True)
     
     with col2:
-    st.markdown("""
-        <p style='font-size:20px'>
-        <strong>Como funciona o XGBoost?</strong><br><br>
-        O XGBoost é um algoritmo baseado em árvores de decisão que funciona por meio de <em>boosting</em>,
-        uma técnica que combina modelos fracos de forma sequencial para criar um modelo robusto.<br><br>
-        Ele corrige os erros dos modelos anteriores a cada etapa, o que o torna altamente eficiente em tarefas preditivas.
-        </p>
-        """, unsafe_allow_html=True)
+        st.markdown("""
+            <p style='font-size:20px'>
+            <strong>Como funciona o XGBoost?</strong><br><br>
+            O XGBoost é um algoritmo baseado em árvores de decisão que funciona por meio de <em>boosting</em>,
+            uma técnica que combina modelos fracos de forma sequencial para criar um modelo robusto.<br><br>
+            Ele corrige os erros dos modelos anteriores a cada etapa, o que o torna altamente eficiente em tarefas preditivas.
+            </p>
+            """, unsafe_allow_html=True)
 
     # -----------------------
     # Carregamento do modelo
