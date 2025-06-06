@@ -19,7 +19,7 @@ def load_data(file_path):
     return pd.read_csv(file_path)
 
 # Título principal
-st.title("Dashboard de Análise de Parâmetros Fisiológicos em Modelo Animal")
+st.title("Análise de Parâmetros Fisiológicos em Modelo Animal")
 
 
 
